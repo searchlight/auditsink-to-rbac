@@ -1,0 +1,5 @@
+.idea/
+
+kube-apiserver.yaml
+kube-apiserver2.yaml
+audit-metadata.yaml

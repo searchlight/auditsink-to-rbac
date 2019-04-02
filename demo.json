@@ -1,0 +1,45 @@
+{
+  "kind":"EventList",
+  "apiVersion":"audit.k8s.io/v1",
+  "metadata":{
+
+  },
+  "items":[
+    {
+      "level":"Metadata",
+      "auditID":"1b8e6ab3-986d-47b5-b492-84b2afb6576b",
+      "stage":"ResponseComplete",
+      "requestURI":"/apis/auditregistration.k8s.io/v1alpha1/auditsinks/mysink",
+      "verb":"patch",
+      "user":{
+        "username":"minikube-user",
+        "groups":[
+          "system:masters",
+          "system:authenticated"
+        ]
+      },
+      "sourceIPs":[
+        "192.168.99.1"
+      ],
+      "userAgent":"kubectl/v1.12.3 (linux/amd64) kubernetes/435f92c",
+      "objectRef":{
+        "resource":"auditsinks",
+        "name":"mysink",
+        "apiGroup":"auditregistration.k8s.io",
+        "apiVersion":"v1alpha1"
+      },
+      "responseStatus":{
+        "metadata":{
+
+        },
+        "code":200
+      },
+      "requestReceivedTimestamp":"2019-04-02T06:20:00.934394Z",
+      "stageTimestamp":"2019-04-02T06:20:00.944353Z",
+      "annotations":{
+        "authorization.k8s.io/decision":"allow",
+        "authorization.k8s.io/reason":""
+      }
+    }
+  ]
+}
