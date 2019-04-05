@@ -3,3 +3,7 @@
 kube-apiserver.yaml
 kube-apiserver2.yaml
 audit-metadata.yaml
+
+healthz.user
+system-authenticated.user
+system-master.user

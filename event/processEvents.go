@@ -1,16 +1,17 @@
 package event
 
 import (
-	"encoding/json"
 	"log"
 	"os"
-	"sort"
 
-	"github.com/davecgh/go-spew/spew"
+	"github.com/the-redback/go-oneliners"
+
+	"encoding/json"
+
+	"github.com/searchlight/auditsink-to-rbac/system"
+	"k8s.io/apiserver/pkg/apis/audit"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-
-	"k8s.io/apiserver/pkg/apis/audit"
 )
 
 type Event struct {
@@ -38,17 +39,14 @@ type EventList struct {
 	Items []Event `json:"items"`
 }
 
-func systemAuthenticated(event audit.Event) bool {
-	authenticatedGroups := []string{"system:authenticated", "system:masters"}
-	sort.Strings(authenticatedGroups)
-	for _, group := range event.User.Groups {
-		for _, authGroup := range authenticatedGroups {
-			if group == authGroup {
-				return true
-			}
+func systemGenerated(event audit.Event) bool {
+	for _, systemUser := range system.UserList {
+		if event.User.Username == systemUser {
+			return true
 		}
 	}
-	return false
+
+	return event.RequestURI == system.SystemRequest
 }
 
 func ProcessEvents(eventBytes []byte) error {
@@ -58,7 +56,7 @@ func ProcessEvents(eventBytes []byte) error {
 		log.Println(err)
 	}
 
-	if systemAuthenticated(eventList.Items[0]) {
+	if systemGenerated(eventList.Items[0]) {
 		return nil
 	}
 
@@ -83,12 +81,10 @@ func ProcessEvents(eventBytes []byte) error {
 
 		newEventList.Items = append(newEventList.Items, newEvent)
 
-		//if newEvent.ResponseCode == 403 {
-		//	oneliners.PrettyJson(newEvent)
-		//} else {
-		//	return nil
-		//}
-		spew.Dump(newEvent)
+		oneliners.PrettyJson(newEvent)
+		if newEvent.ResponseCode != 403 {
+			return nil
+		}
 	}
 
 	data, err := json.Marshal(newEventList)

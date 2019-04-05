@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"net/http"
 
-	"github.com/masudur-rahman/auditsink-prototype/event"
+	"github.com/searchlight/auditsink-to-rbac/event"
 
 	"gopkg.in/macaron.v1"
 )
