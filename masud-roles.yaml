@@ -1,0 +1,66 @@
+typemeta:
+  kind: ""
+  apiversion: ""
+objectmeta:
+  name: auditsink-to-rbac:masud
+  generatename: ""
+  namespace: default
+  selflink: ""
+  uid: ""
+  resourceversion: ""
+  generation: 0
+  creationtimestamp: "0001-01-01T00:00:00Z"
+  deletiontimestamp: null
+  deletiongraceperiodseconds: null
+  labels:
+    auditsink-to-rbac/source: auditsink
+    auditsink-to-rbac/user: masud
+  annotations: {}
+  ownerreferences: []
+  initializers: null
+  finalizers: []
+  clustername: ""
+  managedfields: []
+rules:
+- verbs:
+  - create
+  apigroups:
+  - apps
+  resources:
+  - deployments
+  resourcenames: []
+  nonresourceurls: []
+
+---
+typemeta:
+  kind: ""
+  apiversion: ""
+objectmeta:
+  name: auditsink-to-rbac:masud
+  generatename: ""
+  namespace: default
+  selflink: ""
+  uid: ""
+  resourceversion: ""
+  generation: 0
+  creationtimestamp: "0001-01-01T00:00:00Z"
+  deletiontimestamp: null
+  deletiongraceperiodseconds: null
+  labels:
+    auditsink-to-rbac/source: auditsink
+    auditsink-to-rbac/user: masud
+  annotations: {}
+  ownerreferences: []
+  initializers: null
+  finalizers: []
+  clustername: ""
+  managedfields: []
+subjects:
+- kind: User
+  apigroup: rbac.authorization.k8s.io
+  name: masud
+  namespace: default
+roleref:
+  apigroup: rbac.authorization.k8s.io
+  kind: ""
+  name: auditsink-to-rbac:masud

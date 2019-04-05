@@ -15,8 +15,11 @@ func init() {
 		"system:serviceaccount:kube-system:cronjob-controller",
 		"system:serviceaccount:kube-system:default",
 		"system:serviceaccount:kube-system:coredns",
+		"system:serviceaccount:kube-system:deployment-controller",
+		"system:serviceaccount:kube-system:endpoint-controller",
 		"system:serviceaccount:kube-system:kube-proxy",
 		"system:serviceaccount:kube-system:pod-garbage-collector",
+		"system:serviceaccount:kube-system:replicaset-controller",
 		"system:serviceaccount:kube-system:storage-provisioner",
 		"system:serviceaccount:kube-system:attachdetach-controller",
 

@@ -13,3 +13,16 @@ spec:
             burst: 15
         clientConfig:
             url: "http://192.168.0.121:4000"
+
+---
+apiVersion: auditregistration.k8s.io/v1alpha1
+kind: AuditSink
+metadata:
+    name: mysink2
+spec:
+    policy:
+        level: None
+        stages:
+            - ResponseStarted
+            - ResponseRecieved
+            - Panic

@@ -17,7 +17,6 @@ func Welcome(w http.ResponseWriter, r *http.Request) {
 func ReceiveEvents(ctx *macaron.Context, w http.ResponseWriter, r *http.Request) {
 	buf := new(bytes.Buffer)
 	_, _ = buf.ReadFrom(r.Body)
-
 	if err := event.ProcessEvents(buf.Bytes()); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 	}
