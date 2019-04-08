@@ -1,4 +1,7 @@
 .idea/
+data/
+
+auditsink-to-rbac
 
 kube-apiserver.yaml
 kube-apiserver2.yaml

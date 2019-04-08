@@ -1,6 +1,7 @@
 package rbac
 
 import (
+	"encoding/json"
 	"io/ioutil"
 	"os"
 	"strings"
@@ -63,6 +64,14 @@ func ruleExists(rules []string, rule string) bool {
 		}
 	}
 	return false
+}
+
+func CreateRoleFromBytes(eventBytes []byte) error {
+	eventList := system.EventList{}
+	if err := json.Unmarshal(eventBytes, &eventList); err != nil {
+		return err
+	}
+	return CreateRole(eventList)
 }
 
 func CreateRole(list system.EventList) error {

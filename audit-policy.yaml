@@ -4,7 +4,7 @@ metadata:
     name: mysink
 spec:
     policy:
-        level: Metadata
+        level: RequestResponse
         stages:
             - ResponseComplete
     webhook:

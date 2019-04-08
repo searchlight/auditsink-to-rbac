@@ -2,15 +2,14 @@ package event
 
 import (
 	"log"
-	"os"
-
-	"github.com/searchlight/auditsink-to-rbac/rbac"
-
-	"github.com/the-redback/go-oneliners"
 
 	"encoding/json"
 
+	"github.com/the-redback/go-oneliners"
+
+	"github.com/searchlight/auditsink-to-rbac/nats-streaming/publish"
 	"github.com/searchlight/auditsink-to-rbac/system"
+
 	"k8s.io/apiserver/pkg/apis/audit"
 )
 
@@ -30,10 +29,6 @@ func ProcessEvents(eventBytes []byte) error {
 	if err := json.Unmarshal(eventBytes, eventList); err != nil {
 		log.Println(err)
 	}
-
-	//if systemGenerated(eventList.Items[0]) {
-	//	return nil
-	//}
 
 	newEventList := system.EventList{}
 	newEvent := system.Event{}
@@ -61,8 +56,13 @@ func ProcessEvents(eventBytes []byte) error {
 
 		newEvent.Verb = event.Verb
 
-		newEvent.Username = event.ImpersonatedUser.Username
-		newEvent.UserGroup = event.ImpersonatedUser.Groups
+		if event.ImpersonatedUser == nil {
+			newEvent.Username = event.User.Username
+			newEvent.UserGroup = event.User.Groups
+		} else {
+			newEvent.Username = event.ImpersonatedUser.Username
+			newEvent.UserGroup = event.ImpersonatedUser.Groups
+		}
 		newEvent.UserAgent = event.UserAgent
 
 		newEvent.ResponseCode = event.ResponseStatus.Code
@@ -72,17 +72,10 @@ func ProcessEvents(eventBytes []byte) error {
 
 		newEventList.Items = append(newEventList.Items, newEvent)
 
-		if newEvent.ResponseCode != 403 {
-			return nil
-		}
 	}
 
 	if len(newEventList.Items) == 0 {
 		return nil
-	}
-
-	if err := rbac.CreateRole(newEventList); err != nil {
-		return err
 	}
 
 	oneliners.PrettyJson(newEventList)
@@ -91,17 +84,5 @@ func ProcessEvents(eventBytes []byte) error {
 	if err != nil {
 		log.Println(err)
 	}
-
-	file, err := os.OpenFile("audit.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0600)
-	if err != nil {
-		log.Println(err)
-	}
-	defer file.Close()
-
-	if _, err = file.Write(data); err != nil {
-		log.Println(err)
-		return err
-	}
-	_, _ = file.WriteString("\n")
-	return nil
+	return publish.PublishToNatsServer(data)
 }

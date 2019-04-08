@@ -6,6 +6,13 @@ import (
 
 const (
 	projectName = "auditsink-to-rbac"
+
+	ClusterID   = "auditsink-cluster"
+	PubClientID = "auditsink-publisher"
+	SubClientID = "auditsink-subscriber"
+
+	NatsSubject     = "auditsink-event"
+	SubscriberQueue = "auditsink-subscriber"
 )
 
 type Event struct {

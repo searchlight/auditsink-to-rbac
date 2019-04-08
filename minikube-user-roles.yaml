@@ -4,21 +4,24 @@ metadata:
   creationTimestamp: null
   labels:
     auditsink-to-rbac/source: auditsink
-    auditsink-to-rbac/user: masud
-  name: auditsink-to-rbac:masud
+    auditsink-to-rbac/user: minikube-user
+  name: auditsink-to-rbac:minikube-user
   namespace: default
 rules:
 - apiGroups:
-  - apps
+  - rbac.authorization.k8s.io
+  - auditregistration.k8s.io
   - extensions
-  - ""
   resources:
+  - roles
+  - rolebindings
+  - auditsinks
   - deployments
-  - nodes
   verbs:
-  - create
+  - delete
   - get
-  - list
+  - create
+  - patch
 
 ---
 apiVersion: rbac.authorization.k8s.io/v1
@@ -27,15 +30,15 @@ metadata:
   creationTimestamp: null
   labels:
     auditsink-to-rbac/source: auditsink
-    auditsink-to-rbac/user: masud
-  name: auditsink-to-rbac:masud
+    auditsink-to-rbac/user: minikube-user
+  name: auditsink-to-rbac:minikube-user
   namespace: default
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: auditsink-to-rbac:masud
+  name: auditsink-to-rbac:minikube-user
 subjects:
 - apiGroup: rbac.authorization.k8s.io
   kind: User
-  name: masud
+  name: minikube-user
   namespace: default
