@@ -1,66 +1,38 @@
-typemeta:
-  kind: ""
-  apiversion: ""
-objectmeta:
-  name: auditsink-to-rbac:masud
-  generatename: ""
-  namespace: default
-  selflink: ""
-  uid: ""
-  resourceversion: ""
-  generation: 0
-  creationtimestamp: "0001-01-01T00:00:00Z"
-  deletiontimestamp: null
-  deletiongraceperiodseconds: null
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  creationTimestamp: null
   labels:
     auditsink-to-rbac/source: auditsink
     auditsink-to-rbac/user: masud
-  annotations: {}
-  ownerreferences: []
-  initializers: null
-  finalizers: []
-  clustername: ""
-  managedfields: []
+  name: auditsink-to-rbac:masud
+  namespace: default
 rules:
-- verbs:
-  - create
-  apigroups:
+- apiGroups:
+  - extensions
   - apps
   resources:
   - deployments
-  resourcenames: []
-  nonresourceurls: []
+  verbs:
+  - get
+  - create
 
 ---
-typemeta:
-  kind: ""
-  apiversion: ""
-objectmeta:
-  name: auditsink-to-rbac:masud
-  generatename: ""
-  namespace: default
-  selflink: ""
-  uid: ""
-  resourceversion: ""
-  generation: 0
-  creationtimestamp: "0001-01-01T00:00:00Z"
-  deletiontimestamp: null
-  deletiongraceperiodseconds: null
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  creationTimestamp: null
   labels:
     auditsink-to-rbac/source: auditsink
     auditsink-to-rbac/user: masud
-  annotations: {}
-  ownerreferences: []
-  initializers: null
-  finalizers: []
-  clustername: ""
-  managedfields: []
+  name: auditsink-to-rbac:masud
+  namespace: default
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: auditsink-to-rbac:masud
 subjects:
-- kind: User
-  apigroup: rbac.authorization.k8s.io
+- apiGroup: rbac.authorization.k8s.io
+  kind: User
   name: masud
   namespace: default
-roleref:
-  apigroup: rbac.authorization.k8s.io
-  kind: ""
-  name: auditsink-to-rbac:masud

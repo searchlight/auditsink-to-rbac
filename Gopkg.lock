@@ -10,12 +10,20 @@
   version = "v2"
 
 [[projects]]
-  digest = "1:ffe9824d294da03b391f44e1ae8281281b4afc1bdaa9588c9097785e3af10cec"
-  name = "github.com/davecgh/go-spew"
-  packages = ["spew"]
+  branch = "master"
+  digest = "1:9fd82bf2967ca9873a5f1376b2c4d30eab7c146159c7bc70ed60e2e5c9881975"
+  name = "github.com/appscode/go"
+  packages = ["encoding/yaml"]
   pruneopts = "UT"
-  revision = "8991bc29aa16c548c550c7ff78260e27b9ab7c73"
-  version = "v1.1.1"
+  revision = "52eaa8008e2e5fe8df77ac6fb2fd45e3ea2ae47c"
+
+[[projects]]
+  branch = "master"
+  digest = "1:ae7af28895023cc60b0c04e7c9e236ff04a0dfbe8bc4c4d9be8c86aad3fc4fcd"
+  name = "github.com/fatih/color"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "3f9d52f7176a6927daacff70a3e8d1dc2025c53e"
 
 [[projects]]
   branch = "master"
@@ -46,6 +54,38 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:6727359c2ab1efe714cc87acb36be6cf15a3aae078d8ae736a17fec787dab307"
+  name = "github.com/hokaccha/go-prettyjson"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "f579f869bbfea48a61fbea09207cadd1aaeceb83"
+
+[[projects]]
+  digest = "1:c658e84ad3916da105a761660dcaeb01e63416c8ec7bc62256a9b411a05fcd67"
+  name = "github.com/mattn/go-colorable"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "167de6bfdfba052fa6b2d3664c8f5272e23c9072"
+  version = "v0.0.9"
+
+[[projects]]
+  digest = "1:e150b5fafbd7607e2d638e4e5cf43aa4100124e5593385147b0a74e2733d8b0d"
+  name = "github.com/mattn/go-isatty"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "c2a7a6ca930a4cd0bc33a3f298eb71960732a3a7"
+  version = "v0.0.7"
+
+[[projects]]
+  branch = "master"
+  digest = "1:7d5b60fdcf0fddb4063595f5e4fd70e893347dc455f1b68e89e78114031fdf76"
+  name = "github.com/the-redback/go-oneliners"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "bbdccf829957a6e6c91d1de6bedd133b15d80e1e"
+
+[[projects]]
+  branch = "master"
   digest = "1:f92f6956e4059f6a3efc14924d2dd58ba90da25cc57fe07ae3779ef2f5e0c5f2"
   name = "golang.org/x/crypto"
   packages = ["pbkdf2"]
@@ -64,6 +104,14 @@
   ]
   pruneopts = "UT"
   revision = "74de082e2cca95839e88aa0aeee5aadf6ce7710f"
+
+[[projects]]
+  branch = "master"
+  digest = "1:cf353a5a9ffb2d6f850e9c773e25388a425a70c270546480427ed069e87b136a"
+  name = "golang.org/x/sys"
+  packages = ["unix"]
+  pruneopts = "UT"
+  revision = "4b34438f7a67ee5f45cc6132e2bad873a20324e9"
 
 [[projects]]
   digest = "1:a2ab62866c75542dd18d2b069fec854577a20211d7c0ea6ae746072a1dccdd18"
@@ -113,6 +161,22 @@
   version = "v1.3.2"
 
 [[projects]]
+  digest = "1:4d2e5a73dc1500038e504a8d78b986630e3626dc027bc030ba5c75da257cdb96"
+  name = "gopkg.in/yaml.v2"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "51d6538a90f86fe93ac480b35f37b2be17fef232"
+  version = "v2.2.2"
+
+[[projects]]
+  branch = "master"
+  digest = "1:cec2f596a627bc736a5a071bbdc1be9d8655589366283dca7f4463bb14d48001"
+  name = "k8s.io/api"
+  packages = ["rbac/v1"]
+  pruneopts = "UT"
+  revision = "8fc60343b75c9ba9a2b9c7cb5fc3b9c5e9b90158"
+
+[[projects]]
   branch = "master"
   digest = "1:e8a27013ab9309ae6b79af20a2b0d85867dacba6070aca2920d1ee19e67ed3f4"
   name = "k8s.io/apimachinery"
@@ -158,12 +222,22 @@
   revision = "71442cd4037d612096940ceb0f3fec3f7fff66e0"
   version = "v0.2.0"
 
+[[projects]]
+  digest = "1:7719608fe0b52a4ece56c2dde37bedd95b938677d1ab0f84b8a7852e4c59f849"
+  name = "sigs.k8s.io/yaml"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "fd68e9863619f6ec2fdd8625fe1f02e7c877e480"
+  version = "v1.1.0"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
-    "github.com/davecgh/go-spew/spew",
+    "github.com/appscode/go/encoding/yaml",
+    "github.com/the-redback/go-oneliners",
     "gopkg.in/macaron.v1",
+    "k8s.io/api/rbac/v1",
     "k8s.io/apimachinery/pkg/apis/meta/v1",
     "k8s.io/apiserver/pkg/apis/audit",
   ]
