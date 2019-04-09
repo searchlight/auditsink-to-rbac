@@ -6,6 +6,7 @@ metadata:
     auditsink-to-rbac/source: auditsink
     auditsink-to-rbac/user: masud
   name: auditsink-to-rbac:masud
+  namespace: default
 rules:
 - apiGroups:
   - apps
@@ -29,6 +30,7 @@ metadata:
     auditsink-to-rbac/source: auditsink
     auditsink-to-rbac/user: masud
   name: auditsink-to-rbac:masud
+  namespace: default
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
@@ -37,3 +39,4 @@ subjects:
 - apiGroup: rbac.authorization.k8s.io
   kind: User
   name: masud
+  namespace: default

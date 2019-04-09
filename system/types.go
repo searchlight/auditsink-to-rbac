@@ -12,7 +12,7 @@ const (
 	SubClientID = "auditsink-subscriber"
 
 	NatsSubject     = "auditsink-event"
-	SubscriberQueue = "auditsink-subscriber"
+	SubscriberQueue = "auditsink-subscriber-queue"
 
 	VerbCreate = "create"
 	VerbDelete = "delete"
@@ -27,6 +27,7 @@ type Event struct {
 	RequestURI string   `json:"requestURI"`
 	SourceIPs  []string `json:"sourceIPs"`
 
+	ClusterUUID       string `json:"clusterUUID"`
 	ResourceUUID      string `json:"resourceUUID"`
 	ResourceName      string `json:"resourceName"`
 	ResourceNamespace string `json:"resourceNamespace"`

@@ -2,12 +2,17 @@ package event
 
 import (
 	"encoding/json"
+	"io/ioutil"
 	"log"
+	"os"
+	"path/filepath"
 
 	"github.com/the-redback/go-oneliners"
 
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apiserver/pkg/apis/audit"
+	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/tools/clientcmd"
 
 	"github.com/searchlight/auditsink-to-rbac/nats-streaming/publish"
 	"github.com/searchlight/auditsink-to-rbac/system"
@@ -52,6 +57,31 @@ func getResourceUID(unknown *runtime.Unknown, reference *audit.ObjectReference, 
 	return uid.(string)
 }
 
+func getClusterUID() string {
+	if _, err := os.Stat(system.NamespaceKubeSystem + ".namespace"); err == nil {
+		nsUid, err := ioutil.ReadFile(system.NamespaceKubeSystem + ".namespace")
+		if err == nil || len(nsUid) > 0 {
+			return string(nsUid)
+		}
+	}
+
+	kubeConfigPath := filepath.Join(os.Getenv("HOME"), ".kube", "config")
+	config, err := clientcmd.BuildConfigFromFlags("", kubeConfigPath)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	kubernetesClient := kubernetes.NewForConfigOrDie(config)
+
+	namespace, err := kubernetesClient.CoreV1().Namespaces().Get(system.NamespaceKubeSystem)
+
+	file, err := os.OpenFile(system.NamespaceKubeSystem+".namespace", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0600)
+	defer file.Close()
+
+	_, _ = file.Write([]byte(namespace.UID))
+
+	return string(namespace.UID)
+}
+
 func ProcessEvents(eventBytes []byte) error {
 	eventList := new(audit.EventList)
 
@@ -62,6 +92,8 @@ func ProcessEvents(eventBytes []byte) error {
 	newEventList := system.EventList{}
 	newEvent := system.Event{}
 	newEventList.TypeMeta = eventList.TypeMeta
+
+	clusterUID := getClusterUID()
 
 	for _, event := range eventList.Items {
 		if event.ObjectRef == nil {
@@ -78,6 +110,7 @@ func ProcessEvents(eventBytes []byte) error {
 
 		newEvent.Verb = event.Verb
 
+		newEvent.ClusterUUID = clusterUID
 		newEvent.ResourceUUID = getResourceUID(event.ResponseObject, event.ObjectRef, newEvent.Verb)
 		newEvent.ResourceName = event.ObjectRef.Name
 		newEvent.ResourceNamespace = event.ObjectRef.Namespace
