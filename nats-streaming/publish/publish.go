@@ -7,6 +7,7 @@ import (
 	"time"
 
 	stan "github.com/nats-io/go-nats-streaming"
+
 	"github.com/searchlight/auditsink-to-rbac/system"
 )
 

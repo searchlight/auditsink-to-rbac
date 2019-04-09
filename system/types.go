@@ -5,7 +5,7 @@ import (
 )
 
 const (
-	projectName = "auditsink-to-rbac"
+	ProjectName = "auditsink-to-rbac"
 
 	ClusterID   = "auditsink-cluster"
 	PubClientID = "auditsink-publisher"
@@ -13,6 +13,11 @@ const (
 
 	NatsSubject     = "auditsink-event"
 	SubscriberQueue = "auditsink-subscriber"
+
+	VerbCreate = "create"
+	VerbDelete = "delete"
+
+	NamespaceKubeSystem = "kube-system"
 )
 
 type Event struct {

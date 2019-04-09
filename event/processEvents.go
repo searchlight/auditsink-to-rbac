@@ -1,16 +1,16 @@
 package event
 
 import (
-	"log"
-
 	"encoding/json"
+	"log"
 
 	"github.com/the-redback/go-oneliners"
 
+	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apiserver/pkg/apis/audit"
+
 	"github.com/searchlight/auditsink-to-rbac/nats-streaming/publish"
 	"github.com/searchlight/auditsink-to-rbac/system"
-
-	"k8s.io/apiserver/pkg/apis/audit"
 )
 
 func systemGenerated(event audit.Event) bool {
@@ -21,6 +21,35 @@ func systemGenerated(event audit.Event) bool {
 	}
 
 	return event.RequestURI == system.SystemRequest
+}
+
+func getResourceUID(unknown *runtime.Unknown, reference *audit.ObjectReference, verb string) string {
+	if verb != system.VerbCreate && verb != system.VerbDelete {
+		return string(reference.UID)
+	}
+
+	var responseObject map[string]interface{}
+	if err := json.Unmarshal(unknown.Raw, &responseObject); err != nil {
+		return ""
+	}
+
+	var uidSource interface{}
+	var exist bool
+	if verb == system.VerbCreate {
+		uidSource, exist = responseObject["metadata"]
+	} else if verb == system.VerbDelete {
+		uidSource, exist = responseObject["details"]
+	}
+	if !exist {
+		return ""
+	}
+
+	uid, exist := uidSource.(map[string]interface{})["uid"]
+	if !exist {
+		return ""
+	}
+
+	return uid.(string)
 }
 
 func ProcessEvents(eventBytes []byte) error {
@@ -47,14 +76,14 @@ func ProcessEvents(eventBytes []byte) error {
 		newEvent.RequestURI = event.RequestURI
 		newEvent.SourceIPs = event.SourceIPs
 
-		newEvent.ResourceUUID = string(event.ObjectRef.UID)
+		newEvent.Verb = event.Verb
+
+		newEvent.ResourceUUID = getResourceUID(event.ResponseObject, event.ObjectRef, newEvent.Verb)
 		newEvent.ResourceName = event.ObjectRef.Name
 		newEvent.ResourceNamespace = event.ObjectRef.Namespace
 		newEvent.ResourceGroup = event.ObjectRef.APIGroup
 		newEvent.ResourceVersion = event.ObjectRef.APIVersion
 		newEvent.ResourceKind = event.ObjectRef.Resource
-
-		newEvent.Verb = event.Verb
 
 		if event.ImpersonatedUser == nil {
 			newEvent.Username = event.User.Username

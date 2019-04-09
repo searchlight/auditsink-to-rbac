@@ -7,9 +7,9 @@ import (
 	"os/signal"
 	"time"
 
-	"github.com/searchlight/auditsink-to-rbac/rbac"
-
 	stan "github.com/nats-io/go-nats-streaming"
+
+	"github.com/searchlight/auditsink-to-rbac/rbac"
 	"github.com/searchlight/auditsink-to-rbac/system"
 )
 
@@ -35,6 +35,7 @@ func SaveEventListToLocal(eventByets []byte) error {
 
 func ProcessMessage(msg *stan.Msg) {
 	log.Println(string(msg.Data))
+	println("")
 	if err := SaveEventListToLocal(msg.Data); err != nil {
 		log.Println(err)
 	}

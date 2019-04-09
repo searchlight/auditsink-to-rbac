@@ -1,10 +1,11 @@
 package rbac
 
 import (
-	"encoding/json"
-	"io/ioutil"
 	"os"
 	"strings"
+
+	"encoding/json"
+	"io/ioutil"
 
 	"github.com/appscode/go/encoding/yaml"
 	"github.com/searchlight/auditsink-to-rbac/system"
