@@ -1,6 +1,8 @@
 package system
 
 import (
+	"time"
+
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -52,4 +54,32 @@ type Event struct {
 type EventList struct {
 	metav1.TypeMeta `json:",inline"`
 	Items           []Event `json:"items"`
+}
+
+type AuditLog struct {
+	EventID      string `json:"eventID"`
+	ClusterUUID  string `json:"clusterUUID"`
+	ResourceUUID string `json:"resourceUUID"`
+	ResourceName string `json:"resourceName"`
+
+	ResourceGVK GroupVersionKind `json:"resourceGVK"`
+
+	CreateTimestamp   time.Time `json:"createTimestamp"`
+	DeleteTimestamp   time.Time `json:"deleteTimestamp"`
+	InformedTimestamp time.Time `json:"informedTimestamp"`
+
+	CreatedBy string `json:"createdBy"`
+	DeletedBy string `json:"deletedBy"`
+}
+
+type GroupVersionKind struct {
+	Group   string `json:"group"`
+	Version string `json:"version"`
+	Kind    string `json:"kind"`
+}
+
+type UserRole struct {
+	ClusterUUID string `json:"clusterUUID"`
+	User        string `json:"user"`
+	RoleYaml    string `json:"roleYaml"`
 }
