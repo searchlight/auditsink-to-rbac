@@ -39,6 +39,11 @@ func ProcessMessage(msg *stan.Msg) {
 	if err := SaveEventListToLocal(msg.Data); err != nil {
 		log.Println(err)
 	}
+
+	if err := rbac.SaveAuditLogToDatabaseFromBytes(msg.Data); err != nil {
+		log.Println(err)
+	}
+
 	if err := rbac.CreateRoleFromBytes(msg.Data); err != nil {
 		log.Println(err)
 	}
