@@ -13,30 +13,10 @@ import (
 	"github.com/searchlight/auditsink-to-rbac/system"
 )
 
-//func SaveEventListToBucket(eventBytes []byte) error {
-//
-//	return nil
-//}
-
-func SaveEventListToLocal(eventByets []byte) error {
-	file, err := os.OpenFile("audit.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0777)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-
-	if _, err = file.Write(eventByets); err != nil {
-		return err
-	}
-	_, _ = file.WriteString("\n")
-	log.Println("Data saved to audit.log")
-	return nil
-}
-
 func ProcessMessage(msg *stan.Msg) {
 	log.Println(string(msg.Data))
 	println("")
-	if err := SaveEventListToLocal(msg.Data); err != nil {
+	if err := rbac.SaveEventList(msg.Data); err != nil {
 		log.Println(err)
 	}
 
@@ -69,6 +49,9 @@ func main() {
 		log.Fatalf("Can't connect: %v.\nMake sure a NATS Streaming Server is running at: %s", err, stan.DefaultNatsURL)
 	}
 	defer logCloser(conn)
+
+	rbac.StartXormEngine()
+	defer rbac.EngineCloser()
 
 	log.Printf("Connected to %s clusterID: [%s] clientID: [%s]\n", stan.DefaultNatsURL, system.ClusterID, system.SubClientID)
 

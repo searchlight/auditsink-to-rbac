@@ -6,17 +6,19 @@ metadata:
     auditsink-to-rbac/source: auditsink
     auditsink-to-rbac/user: minikube-user
   name: auditsink-to-rbac:minikube-user
-  namespace: kube-system
+  namespace: default
 rules:
 - apiGroups:
   - extensions
   - rbac.authorization.k8s.io
   - ""
+  - auditregistration.k8s.io
   resources:
   - deployments
   - roles
   - rolebindings
   - namespaces
+  - auditsinks
   verbs:
   - list
   - delete
@@ -33,7 +35,7 @@ metadata:
     auditsink-to-rbac/source: auditsink
     auditsink-to-rbac/user: minikube-user
   name: auditsink-to-rbac:minikube-user
-  namespace: kube-system
+  namespace: default
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
@@ -42,4 +44,4 @@ subjects:
 - apiGroup: rbac.authorization.k8s.io
   kind: User
   name: minikube-user
-  namespace: kube-system
+  namespace: default

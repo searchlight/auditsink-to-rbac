@@ -76,6 +76,11 @@ type AuditLog struct {
 
 type UserRole struct {
 	ClusterUUID string `json:"clusterUUID"`
-	User        string `json:"user"`
-	RoleYaml    string `json:"roleYaml"`
+	User        string `json:"user" xorm:"pk"`
+	RoleYaml    string `json:"roleYaml" xorm:"LONGTEXT"`
+}
+
+type AuditEvent struct {
+	AuditID   string `json:"auditID" xorm:"pk"`
+	AuditData string `json:"auditData" xorm:"LONGTEXT"`
 }

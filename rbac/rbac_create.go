@@ -1,6 +1,7 @@
 package rbac
 
 import (
+	"fmt"
 	"os"
 	"strings"
 
@@ -20,6 +21,7 @@ const (
 	RoleBindingKind = "RoleBinding"
 )
 
+// Deprecated
 func getFileAndRoles(event system.Event) (*os.File, *rbac.Role, *rbac.RoleBinding, error) {
 	role := new(rbac.Role)
 	roleBinding := new(rbac.RoleBinding)
@@ -57,6 +59,55 @@ func getFileAndRoles(event system.Event) (*os.File, *rbac.Role, *rbac.RoleBindin
 	roleBinding.Kind = RoleBindingKind
 	return file, role, roleBinding, nil
 }
+func getRolesFromDatabase(event system.Event) (*system.UserRole, *rbac.Role, *rbac.RoleBinding, error) {
+	role := new(rbac.Role)
+	roleBinding := new(rbac.RoleBinding)
+
+	roles := make([]string, 2)
+
+	if exist, _ := engine.IsTableExist(new(system.UserRole)); !exist {
+		if err := engine.CreateTables(new(system.UserRole)); err != nil {
+			return nil, nil, nil, err
+		}
+	}
+
+	userRole := new(system.UserRole)
+	userRole.User = event.Username
+	if exist, _ := engine.Get(userRole); !exist {
+		session := engine.NewSession()
+		defer session.Close()
+
+		userRole.ClusterUUID = event.ClusterUUID
+
+		if _, err := session.Insert(userRole); err != nil {
+			if err = session.Rollback(); err != nil {
+				return nil, nil, nil, err
+			}
+			return nil, nil, nil, err
+		}
+		if err := session.Commit(); err != nil {
+			return nil, nil, nil, err
+		}
+	}
+
+	if len(userRole.RoleYaml) != 0 {
+		roles = strings.Split(userRole.RoleYaml, "---")
+		if err := yaml.Unmarshal([]byte(roles[0]), role); err != nil {
+			return nil, nil, nil, err
+		}
+		if err := yaml.Unmarshal([]byte(roles[1]), roleBinding); err != nil {
+			return nil, nil, nil, err
+		}
+	}
+
+	role.APIVersion = rbac.GroupName + "/" + RBACApiVersion
+	role.Kind = RoleKind
+
+	roleBinding.APIVersion = rbac.GroupName + "/" + RBACApiVersion
+	roleBinding.Kind = RoleBindingKind
+
+	return userRole, role, roleBinding, nil
+}
 
 func ruleExists(rules []string, rule string) bool {
 	for _, value := range rules {
@@ -72,10 +123,17 @@ func CreateRoleFromBytes(eventBytes []byte) error {
 	if err := json.Unmarshal(eventBytes, &eventList); err != nil {
 		return err
 	}
-	return CreateRole(eventList)
+	if err := CreateRoleAndSaveToDatabase(eventList); err != nil {
+		return err
+	}
+	if err := CreateRoleAndSaveToLocal(eventList); err != nil {
+		return err
+	}
+	return nil
 }
 
-func CreateRole(list system.EventList) error {
+// Deprecated
+func CreateRoleAndSaveToLocal(list system.EventList) error {
 
 	for _, event := range list.Items {
 		file, role, roleBinding, err := getFileAndRoles(event)
@@ -144,6 +202,89 @@ func CreateRole(list system.EventList) error {
 			return err
 		}
 		if _, err = file.Write(data); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func CreateRoleAndSaveToDatabase(list system.EventList) error {
+
+	for _, event := range list.Items {
+		userRole, role, roleBinding, err := getRolesFromDatabase(event)
+		if err != nil {
+			return err
+		}
+
+		role.Name = projectName + ":" + event.Username
+		role.Namespace = event.ResourceNamespace
+		role.Labels = map[string]string{
+			projectName + "/user":   event.Username,
+			projectName + "/source": "auditsink",
+		}
+
+		if role.Rules == nil {
+			role.Rules = []rbac.PolicyRule{
+				{
+					Verbs:     []string{event.Verb},
+					APIGroups: []string{event.ResourceGroup},
+					Resources: []string{event.ResourceKind},
+				},
+			}
+		} else {
+			if !ruleExists(role.Rules[0].Verbs, event.Verb) {
+				role.Rules[0].Verbs = append(role.Rules[0].Verbs, event.Verb)
+			}
+			if !ruleExists(role.Rules[0].APIGroups, event.ResourceGroup) {
+				role.Rules[0].APIGroups = append(role.Rules[0].APIGroups, event.ResourceGroup)
+			}
+			if !ruleExists(role.Rules[0].Resources, event.ResourceKind) {
+				role.Rules[0].Resources = append(role.Rules[0].Resources, event.ResourceKind)
+			}
+		}
+
+		roleData, err := yaml.Marshal(role)
+		if err != nil {
+			return err
+		}
+
+		roleBinding.Name = projectName + ":" + event.Username
+		roleBinding.Namespace = event.ResourceNamespace
+		roleBinding.Labels = map[string]string{
+			projectName + "/user":   event.Username,
+			projectName + "/source": "auditsink",
+		}
+		roleBinding.RoleRef = rbac.RoleRef{
+			APIGroup: rbac.GroupName,
+			Kind:     role.Kind,
+			Name:     role.Name,
+		}
+		roleBinding.Subjects = []rbac.Subject{
+			{
+				Kind:      rbac.UserKind,
+				APIGroup:  rbac.GroupName,
+				Name:      event.Username,
+				Namespace: event.ResourceNamespace,
+			},
+		}
+		roleBindingData, err := yaml.Marshal(roleBinding)
+		if err != nil {
+			return err
+		}
+
+		userRole.RoleYaml = fmt.Sprintf("%s\n---\n%s", string(roleData), string(roleBindingData))
+
+		session := engine.NewSession()
+		defer session.Close()
+
+		if _, err := session.ID(userRole.User).Update(userRole); err != nil {
+			if err := session.Rollback(); err != nil {
+				return err
+			}
+			return err
+		}
+		if err := session.Commit(); err != nil {
 			return err
 		}
 	}
